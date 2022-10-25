@@ -6,9 +6,6 @@ module.exports = {
     try {
       const { name } = req.body;
 
-      // const avail = await Pokemon.find({ name: name });
-      // if (avail) throw new Error("Name Already Taken");
-
       const row = await Pokemon.create({ name });
 
       res.status(201).json({
@@ -85,7 +82,7 @@ module.exports = {
   async GetOne(req, res) {
     let { id } = req.params;
     try {
-      const row = await Pokemon.findOne(id);
+      const row = await Pokemon.findOne({ _id: req.params.id });
       if (!row) throw new Error(`Pokemon ID: ${id} not found`);
 
       res.status(200).json({
@@ -103,15 +100,30 @@ module.exports = {
 
   async Delete(req, res) {
     try {
-      const avail = await Pokemon.findOne({ _id: req.params.id });
-      if (!avail) throw new Error(`Pokemon ID: ${req.params.id} not found`);
+      const primeNumber = (num) => {
+        for (let i = 2, s = Math.sqrt(num); i <= s; i++)
+          if (num % i === 0) return false;
+        return num > 1;
+      };
+      const randomNumber = Math.floor(Math.random() * 10);
+      const checkPrime = primeNumber(randomNumber);
+      console.log(randomNumber, checkPrime);
+      if (checkPrime === false) {
+        res.status(406).json({
+          succes: false,
+          message: `Number ${randomNumber} is not Prime Number`,
+        });
+      } else {
+        const avail = await Pokemon.findOne({ _id: req.params.id });
+        if (!avail) throw new Error(`Pokemon ID: ${req.params.id} not found`);
 
-      const row = await Pokemon.findByIdAndDelete({ _id: req.params.id });
-      res.status(200).json({
-        success: true,
-        message: `Pokemons ID: ${row.id} deleted`,
-        row,
-      });
+        const row = await Pokemon.findByIdAndDelete({ _id: req.params.id });
+        res.status(200).json({
+          success: true,
+          message: `Pokemons ID: ${row.id} deleted`,
+          row,
+        });
+      }
     } catch (error) {
       res.status(400).json({
         succes: false,

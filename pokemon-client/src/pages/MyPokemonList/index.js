@@ -134,7 +134,11 @@ const MyPokemonList = () => {
       },
     })
       .then((response) => {
-        return response.status;
+        if (response.status === 406) {
+          return alert("failed to delete");
+        } else {
+          return response.status;
+        }
       })
       .then((res) => {
         if (res === 200) {
@@ -163,7 +167,6 @@ const MyPokemonList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteData(id);
-        Swal.fire("Deleted!", "Your Pokemon has been deleted.", "success");
       }
     });
   };
