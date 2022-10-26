@@ -82,12 +82,82 @@ module.exports = {
   async GetOne(req, res) {
     let { id } = req.params;
     try {
-      const row = await Pokemon.findOne({ _id: req.params.id });
+      const row = await Pokemon.findById({ _id: req.params.id });
+
       if (!row) throw new Error(`Pokemon ID: ${id} not found`);
 
       res.status(200).json({
         success: true,
         message: `Retrieved Pokemons ID: ${id} data`,
+        row,
+      });
+    } catch (error) {
+      res.status(400).json({
+        succes: false,
+        message: error.message,
+      });
+    }
+  },
+
+  async UpdateOne(req, res) {
+    let { id } = req.params;
+    try {
+      const rows = await Pokemon.findById({ _id: req.params.id });
+      function fibo(n) {
+        let fibList = [];
+        if (n < 2) {
+          fibList.push(0);
+        } else {
+          let prev = 0;
+          let curr = 1;
+          fibList.push(prev, curr);
+          for (let i = 2; i < n; i++) {
+            const next = prev + curr;
+            prev = curr;
+            curr = next;
+            fibList.push(curr);
+          }
+        }
+        return fibList;
+      }
+      const fibolist = fibo(12);
+
+      const inputFibo = [];
+      let changeFibo = 0;
+      let nextFibo = [];
+
+      if (
+        rows.name.substring(rows.name.length - 2, rows.name.length - 1) == "-"
+      ) {
+        inputFibo.push(
+          fibolist.indexOf(
+            parseInt(
+              rows.name.substring(rows.name.length - 1, rows.name.length)
+            )
+          ) + 1
+        );
+        nextFibo = fibo(parseInt(inputFibo) + 1);
+        if (nextFibo.length === 3) {
+          nextFibo = fibo(parseInt(inputFibo) + 2);
+        }
+        changeFibo = nextFibo[nextFibo.length - 1];
+      } else {
+        changeFibo = 0;
+      }
+
+      const row = await Pokemon.findByIdAndUpdate(
+        { _id: req.params.id },
+        { name: `${req.body.name}-${changeFibo}` },
+        {
+          new: true,
+        }
+      );
+
+      if (!row) throw new Error(`Pokemon ID: ${id} not found`);
+
+      res.status(201).json({
+        success: true,
+        message: `Item have been updated`,
         row,
       });
     } catch (error) {
@@ -107,7 +177,6 @@ module.exports = {
       };
       const randomNumber = Math.floor(Math.random() * 10);
       const checkPrime = primeNumber(randomNumber);
-      console.log(randomNumber, checkPrime);
       if (checkPrime === false) {
         res.status(406).json({
           succes: false,

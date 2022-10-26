@@ -12,6 +12,7 @@ const MyPokemonList = () => {
   const [loading, setIsLoading] = useState(true);
   const [myPokemonList, setMyPokemonList] = useState(null);
   const [catchingPokemon, setCatchingPokemon] = useState(null);
+  const [RenamingPokemon, setRenamingPokemon] = useState(true);
 
   const getData = async () => {
     const url = "http://localhost:3000/api/mypokemon";
@@ -72,7 +73,7 @@ const MyPokemonList = () => {
 
   const catchPokemon = async (e) => {
     e.preventDefault();
-    setCatchingPokemon(Math.random() < 0.5);
+    setRenamingPokemon(Math.random() < 0.5);
 
     if (catchingPokemon === true) {
       let names = myPokemonList?.map((a) => a.name);
@@ -154,6 +155,40 @@ const MyPokemonList = () => {
       });
   };
 
+  const renameData = async (id, name) => {
+    const url = `http://localhost:3000/api/mypokemon/${id}`;
+
+    await fetch(url, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+      }),
+    })
+      .then((response) => {
+        if (response.status === 406) {
+          return alert("failed to delete");
+        } else {
+          return response.status;
+        }
+      })
+      .then((res) => {
+        if (res === 200) {
+          setIsLoading(false);
+          getData();
+        } else {
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+        setIsLoading(false);
+      });
+  };
+
   const deletePokemon = async (id, e) => {
     e.preventDefault();
     Swal.fire({
@@ -169,6 +204,24 @@ const MyPokemonList = () => {
         deleteData(id);
       }
     });
+  };
+
+  const renamePokemon = async (id, name, e) => {
+    e.preventDefault();
+    setCatchingPokemon(true);
+    console.log(RenamingPokemon);
+
+    if (RenamingPokemon === true) {
+      let pokemonName = prompt(`rename ${name}`);
+      if (pokemonName === null || pokemonName === "") {
+        await renameData(id, name);
+        getData();
+      } else {
+        await renameData(id, pokemonName);
+        getData();
+        Swal.fire("Updated!", "Your Pokemon has been updated.", "success");
+      }
+    }
   };
 
   useEffect(() => {
@@ -235,6 +288,9 @@ const MyPokemonList = () => {
                     width={"31%"}
                     data={pokemon}
                     deletePokemon={(e) => deletePokemon(pokemon.id, e)}
+                    renamePokemon={(e) =>
+                      renamePokemon(pokemon.id, pokemon.name, e)
+                    }
                   />
                 </Col>
               ))

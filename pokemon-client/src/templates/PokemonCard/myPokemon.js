@@ -4,7 +4,7 @@ import { Color } from "../../utils/Color";
 import Lottie from "react-lottie";
 import pikacu from "../../assets/animations/pikachu.json";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { toUpperCase } from "../../utils/upperCase";
 
 var typesColor = "#52D3B6";
@@ -91,8 +91,12 @@ const MyPokemonCard = (props) => {
             ))}
           </div>
           <Spacer />
+
           <div onClick={props.deletePokemon} style={{ cursor: "pointer" }}>
             <FontAwesomeIcon icon={faTrash} color={"#E82424"} />
+          </div>
+          <div onClick={props.renamePokemon} style={{ cursor: "pointer" }}>
+            <FontAwesomeIcon icon={faPenToSquare} color={"#E82424"} />
           </div>
         </div>
       ) : (
