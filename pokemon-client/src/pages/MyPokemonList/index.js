@@ -73,7 +73,7 @@ const MyPokemonList = () => {
 
   const catchPokemon = async (e) => {
     e.preventDefault();
-    setRenamingPokemon(Math.random() < 0.5);
+    setCatchingPokemon(Math.random() < 0.5);
 
     if (catchingPokemon === true) {
       let names = myPokemonList?.map((a) => a.name);
@@ -136,7 +136,7 @@ const MyPokemonList = () => {
     })
       .then((response) => {
         if (response.status === 406) {
-          return alert("failed to delete");
+          return alert("failed to delete, return not prime number");
         } else {
           return response.status;
         }
@@ -208,7 +208,7 @@ const MyPokemonList = () => {
 
   const renamePokemon = async (id, name, e) => {
     e.preventDefault();
-    setCatchingPokemon(true);
+    setRenamingPokemon(true);
     console.log(RenamingPokemon);
 
     if (RenamingPokemon === true) {
