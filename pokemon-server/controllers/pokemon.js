@@ -1,12 +1,11 @@
 const Pokemon = require("../models/pokemon");
-const axios = require("axios");
 
 module.exports = {
   async Create(req, res) {
     try {
       const { name } = req.body;
 
-      const row = await Pokemon.create({ name });
+      const row = await Pokemon.create({ name, elements: null });
 
       res.status(201).json({
         success: true,
@@ -14,6 +13,7 @@ module.exports = {
         data: {
           id: row._id,
           name: row.name,
+          elements: row.elements,
           species: {
             url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/132.png",
             pokemonName: "ditto",
@@ -103,51 +103,45 @@ module.exports = {
     let { id } = req.params;
     try {
       const rows = await Pokemon.findById({ _id: req.params.id });
-      function fibo(n) {
-        let fibList = [];
-        if (n < 2) {
-          fibList.push(0);
-        } else {
-          let prev = 0;
-          let curr = 1;
-          fibList.push(prev, curr);
-          for (let i = 2; i < n; i++) {
-            const next = prev + curr;
-            prev = curr;
-            curr = next;
-            fibList.push(curr);
-          }
+      let elements = rows.elements;
+      elements += 1;
+
+      let nextFibo = null;
+
+      const fibonacciSeries = function (n) {
+        /* Return single element array straight away */
+        if (n === 0) {
+          return [0];
         }
-        return fibList;
-      }
-      const fibolist = fibo(12);
 
-      const inputFibo = [];
-      let changeFibo = 0;
-      let nextFibo = [];
+        let arr = [0, 1];
 
-      if (
-        rows.name.substring(rows.name.length - 2, rows.name.length - 1) == "-"
-      ) {
-        inputFibo.push(
-          fibolist.indexOf(
-            parseInt(
-              rows.name.substring(rows.name.length - 1, rows.name.length)
-            )
-          ) + 1
+        /* If the number of name to generate is greater than 2, use a
+         *  for-loop to iteratively add name into the result array
+         * */
+        for (let i = 2; i < n + 1; i++) {
+          arr.push(arr[i - 2] + arr[i - 1]);
+        }
+
+        return arr;
+      };
+      if (1 <= elements && elements <= 100) {
+        let fibonacci = fibonacciSeries(elements - 1);
+
+        /* Sort the  sequence generated, in the following manner:
+         *  Even numbers first, in descending order,
+         *  Followed by Odd numbers, in descending order
+         * */
+        const sorted = [...fibonacci].sort(
+          (a, b) => (a % 2) - (b % 2) || b - a
         );
-        nextFibo = fibo(parseInt(inputFibo) + 1);
-        if (nextFibo.length === 3) {
-          nextFibo = fibo(parseInt(inputFibo) + 2);
-        }
-        changeFibo = nextFibo[nextFibo.length - 1];
-      } else {
-        changeFibo = 0;
+
+        nextFibo = fibonacci[fibonacci.length - 1];
       }
 
       const row = await Pokemon.findByIdAndUpdate(
         { _id: req.params.id },
-        { name: `${req.body.name}-${changeFibo}` },
+        { name: `${req.body.name}-${nextFibo}`, elements },
         {
           new: true,
         }
